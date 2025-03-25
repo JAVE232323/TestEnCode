@@ -2,8 +2,9 @@ package main
 
 import (
 	"os"
-	"test-encode/db"
-	"test-encode/handlers"
+	"test-encode/internal/db"
+	"test-encode/internal/handlers"
+	"test-encode/internal/logic"
 
 	"github.com/gocraft/dbr"
 	"github.com/labstack/echo/v4"
@@ -20,11 +21,11 @@ func main() {
 	if err != nil {
 		logger.Fatal("Ощибка подключения к бд", err)
 	}
-	defer logger.Fatal("12312312")
+	defer dbConn.Close()
 
-	session := dbConn.NewSession(nil)
-	dbRepo := db.NewPersonRepository(session)
-	PersonHandler := handlers.NewPersonHandler(dbRepo)
+	dbRepo := db.NewPersonRepository(dbConn)
+	PersonLogic := logic.NewPersonLogic(dbRepo, logger)
+	PersonHandler := handlers.NewPersonHandler(PersonLogic)
 
 	e := echo.New()
 
